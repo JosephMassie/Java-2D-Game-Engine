@@ -15,6 +15,9 @@ public class Screen extends Canvas {
 	private int height = 0;
 	private int scale = 0;
 	
+	private int camera_xPos = 0;
+	private int camera_yPos = 0;
+	
 	private BufferedImage buffer;
 	private int[] pixel_data;
 	private BufferStrategy bufferStrat;
@@ -46,15 +49,15 @@ public class Screen extends Canvas {
 	public void RenderObject(int[] obj_pixel_data, int obj_xPos, int obj_yPos, int obj_width, int obj_height) {
 		// Go through the objects pixel data blending it with the current screen back buffer pixel data
 		for (int y = 0; y < obj_height; y++) {
-			int screenY = y + obj_yPos;
+			int screenY = y + obj_yPos + camera_yPos;
 			for (int x = 0; x < obj_width; x++) {
-				int screenX = x + obj_xPos;
+				int screenX = x + obj_xPos + camera_xPos;
 				// calculate the pixel indexes for both the obj and the back buffer
 				int obj_pixelIndex = x + y * obj_width,
 					buff_pixelIndex = screenX + screenY * width;
 				// make sure this value is within the screen
 				if ((screenY >= 0 && screenY < height && screenX >= 0 && screenX < width)) {
-					// extra sanity check to make sure the whole buffer is not exceeded
+					// extra sanity check to make sure the buffer is not exceeded
 					if (buff_pixelIndex >= 0 && buff_pixelIndex < pixel_data.length) {
 						pixel_data[buff_pixelIndex] = Blend(pixel_data[buff_pixelIndex], obj_pixel_data[obj_pixelIndex]);
 					}
@@ -77,6 +80,19 @@ public class Screen extends Canvas {
 		
 		stylus.dispose();
 		bufferStrat.show();
+	}
+	
+	public void setCameraPosition(int x, int y) {
+		camera_xPos = x;
+		camera_yPos = y;
+	}
+	
+	public int getCameraXPos() {
+		return camera_xPos;
+	}
+	
+	public int getCameraYPos() {
+		return camera_yPos;
 	}
 	
 	private int Blend(int originalColor, int newColor) {

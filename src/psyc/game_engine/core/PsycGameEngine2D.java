@@ -27,16 +27,19 @@ public class PsycGameEngine2D implements Runnable {
 	private int updateCount = 0;
 	
 	private Sprite test;
+	private Sprite test2;
 	private int testX = 0;
 	private int testY = 0;
+	private int cameraXPos = 0;
+	private int cameraYPos = 0;
 	
 	public PsycGameEngine2D() {
 		screen = new Screen(WIDTH, HEIGHT, SCALE);
-		test = new Sprite("/test_sprite.png");
 		input = new InputHandler(screen);
 		frame = new JFrame(TITLE);
 		
-		
+		test = new Sprite("/test_sprite.png");
+		test2 = new Sprite("/test_background.png");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -112,24 +115,41 @@ public class PsycGameEngine2D implements Runnable {
 		if (timePassed > 1.5D)
 			System.out.println("Total Updates: " + updateCount + " ns: " + timePassed);
 		
-		int spd = 5;
+		int spd = 5, camSpd = 2;
 		
-		if (input.checkKey(KeyEvent.VK_UP) || input.checkKey(KeyEvent.VK_W))
+		// test entity controls
+		if (input.checkKey(KeyEvent.VK_W))
 			testY -= spd;
 		
-		if (input.checkKey(KeyEvent.VK_DOWN) || input.checkKey(KeyEvent.VK_S))
+		if (input.checkKey(KeyEvent.VK_S))
 			testY += spd;
 		
-		if (input.checkKey(KeyEvent.VK_LEFT) || input.checkKey(KeyEvent.VK_A))
+		if (input.checkKey(KeyEvent.VK_A))
 			testX -= spd;
 		
-		if (input.checkKey(KeyEvent.VK_RIGHT) || input.checkKey(KeyEvent.VK_D))
+		if (input.checkKey(KeyEvent.VK_D))
 			testX += spd;
+		
+		// camera controls
+		if (input.checkKey(KeyEvent.VK_UP))
+			cameraYPos += camSpd;
+		
+		if(input.checkKey(KeyEvent.VK_DOWN))
+			cameraYPos -= camSpd;
+		
+		if(input.checkKey(KeyEvent.VK_LEFT))
+			cameraXPos += camSpd;
+		
+		if(input.checkKey(KeyEvent.VK_RIGHT))
+			cameraXPos -= camSpd;
+		
+		screen.setCameraPosition(cameraXPos, cameraYPos);
 	}
 	
 	public void render() {
 		screen.ClearBuffer();
 		
+		test2.Render(screen, 0, 0);
 		test.Render(screen, testX, testY);
 		
 		screen.Render();
