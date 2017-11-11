@@ -5,33 +5,34 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Sprite {
+public class Texture {
 	
 	private String filePath;
 	private int width;
 	private int height;
 	
+	private BufferedImage imageData;
 	private int[] pixels;
 	
 	private static final int MASK = 0xffff00ff;
 	
-	public Sprite(String target_filePath) {
-		BufferedImage imageFile = null;
+	public Texture(String target_filePath) {
+		imageData = null;
 		
 		try {
-			imageFile = ImageIO.read(Sprite.class.getResourceAsStream(target_filePath));
+			imageData = ImageIO.read(Texture.class.getResourceAsStream(target_filePath));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		if (imageFile == null)
+		if (imageData == null)
 			return;
 		
 		filePath = target_filePath;
-		width = imageFile.getWidth();
-		height = imageFile.getHeight();
+		width = imageData.getWidth();
+		height = imageData.getHeight();
 		
-		pixels = imageFile.getRGB(0, 0, width, height, null, 0, width);
+		pixels = imageData.getRGB(0, 0, width, height, null, 0, width);
 		
 		for (int i = 0; i < pixels.length; i++) {
 			// Replace mask color with null pixel data with no alpha
@@ -45,5 +46,13 @@ public class Sprite {
 	
 	public String GetFilePath() {
 		return filePath;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
 	}
 }

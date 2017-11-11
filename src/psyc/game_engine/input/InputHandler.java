@@ -1,6 +1,7 @@
 package psyc.game_engine.input;
 
 import java.awt.MouseInfo;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -89,12 +90,16 @@ public class InputHandler {
 	
 	private class MouseHandler extends MouseAdapter {
 		
-		public int mouseX = 0;
-		public int mouseY = 0;
+		public int x = 0;
+		public int y = 0;
 		
-		public boolean mouseOnScreen = false;
+		public boolean onScreen = false;
 		
-		public boolean[] mouseState; 
+		public boolean clickOccurred = false;
+		public int clickX = -1;
+		public int clickY = -1;
+		
+		public boolean[] buttonStates; 
 		
 		public int mouseWheelMomentum = 0;
 		
@@ -103,42 +108,48 @@ public class InputHandler {
 			window.addMouseMotionListener(this);
 			window.addMouseWheelListener(this);
 			
-			mouseState = new boolean[MouseInfo.getNumberOfButtons() + 1];
+			buttonStates = new boolean[MouseInfo.getNumberOfButtons() + 1];
 		}
 		
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			// update mouse position
-			mouseX = e.getX();
-			mouseY = e.getY();
+			x = e.getX();
+			y = e.getY();
 		}
 		
 		@Override
-		public void mouseClicked(MouseEvent e) {}
+		public void mouseClicked(MouseEvent e) {
+			clickOccurred = true;
+			// save the specific location the click occurred at just in case the mouse is moved
+			clickX = e.getX();
+			clickY = e.getY();
+			System.out.println("Clicked! " + clickOccurred + " at x:" + clickX + " y:" + clickY);
+		}
 		
 		@Override
 		public void mouseDragged(MouseEvent e) {}
 		
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			mouseOnScreen = true;
+			onScreen = true;
 		}
 		
 		@Override
 		public void mouseExited(MouseEvent e) {
-			mouseOnScreen = false;
+			onScreen = false;
 		}
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// update relevant mouse button states
-			mouseState[e.getButton()] = true;
+			buttonStates[e.getButton()] = true;
 		}
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// update relevant mouse button states
-			mouseState[e.getButton()] = false;
+			buttonStates[e.getButton()] = false;
 		}
 		
 		@Override
@@ -160,11 +171,11 @@ public class InputHandler {
 	}
 	
 	public int getMouseXPos() {
-		return mouse.mouseX;
+		return mouse.x;
 	}
 	
 	public int getMouseYPos() {
-		return mouse.mouseY;
+		return mouse.y;
 	}
 	
 	public int getMouseWheelPosition() {
@@ -172,13 +183,32 @@ public class InputHandler {
 	}
 	
 	public boolean isMouseOnScreen() {
-		return mouse.mouseOnScreen;
+		return mouse.onScreen;
 	}
 	
 	public boolean checkMouseButton(int btnID) {
 		if (btnID < 0 || btnID > (MouseInfo.getNumberOfButtons() + 1))
 			return false;
 		
-		return mouse.mouseState[btnID];
+		return mouse.buttonStates[btnID];
+	}
+	
+	// Returns -1 if no click occurred, 0 if a click occurred but was not in the provided area, and 1 if one occurred in the provided area
+	public int checkForMouseClick(Rectangle screen_location) {
+		// No click occurred or the mouse is out of bounds
+		if (!mouse.clickOccurred || !mouse.onScreen)
+			return -1;
+		
+		// A click occurred so check if it was with the provided area
+		if (screen_location.contains(mouse.clickX, mouse.clickY))
+			return 1;
+		
+		// A click occurred but was not within the given area
+		return 0;
+	}
+	
+	// Used to clear single tick/update data before moving on, make sure this is called at the end of the main update function
+	public void cleanUp() {
+		mouse.clickOccurred = false;
 	}
 }

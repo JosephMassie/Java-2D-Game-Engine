@@ -40,7 +40,7 @@ public class Screen extends Canvas {
 	public void ClearBuffer() {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				pixel_data[x + y * width] = 0xff000000;
+				pixel_data[x + y * width] = 0x00000000;
 			}
 		}
 	}
@@ -93,6 +93,14 @@ public class Screen extends Canvas {
 	
 	public int getCameraYPos() {
 		return camera_yPos;
+	}
+	
+	public int transposeXToScreenX(int orgX) {
+		return orgX + camera_xPos; 
+	}
+	
+	public int transposeYToScreenY(int orgY) {
+		return orgY + camera_yPos;
 	}
 	
 	private int Blend(int originalColor, int newColor) {

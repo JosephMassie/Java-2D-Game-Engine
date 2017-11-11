@@ -1,12 +1,13 @@
 package psyc.game_engine.core;
 
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
 
 import psyc.game_engine.graphics.Screen;
-import psyc.game_engine.graphics.Sprite;
+import psyc.game_engine.graphics.Texture;
 import psyc.game_engine.input.InputHandler;
 
 public class PsycGameEngine2D implements Runnable {
@@ -16,7 +17,7 @@ public class PsycGameEngine2D implements Runnable {
 	
 	public static final int WIDTH = 500;
 	public static final int HEIGHT = WIDTH / 16 * 9;
-	public static final int SCALE = 2;
+	public static final int SCALE = 1;
 	public static final String TITLE = "PsyCode 2D Game Engine - Test";
 	
 	private JFrame frame;
@@ -26,8 +27,9 @@ public class PsycGameEngine2D implements Runnable {
 	private boolean running = false;
 	private int updateCount = 0;
 	
-	private Sprite test;
-	private Sprite test2;
+	private Texture test;
+	private Rectangle clickTest;
+	private Texture test2;
 	private int testX = 0;
 	private int testY = 0;
 	private int cameraXPos = 0;
@@ -38,8 +40,8 @@ public class PsycGameEngine2D implements Runnable {
 		input = new InputHandler(screen);
 		frame = new JFrame(TITLE);
 		
-		test = new Sprite("/test_sprite.png");
-		test2 = new Sprite("/test_background.png");
+		test = new Texture("/test_sprite.png");
+		test2 = new Texture("/test_background.png");
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -92,6 +94,8 @@ public class PsycGameEngine2D implements Runnable {
 			}
 			
 			if (shouldRender) {
+				// after updating but before rendering clean up input data
+				input.cleanUp();
 				frames++;
 				render();
 			}
@@ -144,6 +148,15 @@ public class PsycGameEngine2D implements Runnable {
 			cameraXPos -= camSpd;
 		
 		screen.setCameraPosition(cameraXPos, cameraYPos);
+		
+		clickTest = new Rectangle(testX, testY, test.getWidth() + 1, test.getHeight() + 1);
+		
+		int clickOccured = input.checkForMouseClick(clickTest);
+		
+		if (clickOccured == 1)
+			System.out.println("Test click worked!");
+		else if (clickOccured == 0)
+			System.out.println("Test click missed.");
 	}
 	
 	public void render() {
